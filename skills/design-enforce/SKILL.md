@@ -1,17 +1,15 @@
 ---
 name: design-enforce
-description: "Install drift enforcement for a ratified design system. A framework-agnostic lint script with config derived from the tokens, an npm script, shadcn substrate alignment, and optional CI and pre-commit wiring. Use as phase 4 of design-system, after design-apply."
+description: "Installs a framework-agnostic lint script that flags arbitrary values, raw hex, off-scale spacing and type, and raw palette classes. Generates its config from the ratified tokens, sets a baseline, and optionally aligns shadcn components. Use as phase 4 of design-system, after design-apply."
 ---
 
 # Design Enforce
 
-A design system without enforcement lasts about six weeks. Someone ships `p-[13px]` under deadline, review misses it because it's one line in a 400-line diff, and two months later there are two systems again.
+Install a lint script that flags values outside the ratified scales, configured from the project's own tokens.
 
-This makes that mechanically impossible.
+## Why a script rather than an ESLint rule
 
-## Why a script and not ESLint
-
-ESLint rules read JS and JSX ASTs. Most drift lives in template text: Svelte markup, Vue templates, Astro, plain HTML. Those rules can't see any of it. `assets/design-lint.mjs` scans text, so it covers every framework the same way, needs no plugin, and runs anywhere Node does.
+ESLint rules operate on JS and JSX ASTs. Svelte markup, Vue templates, Astro files and plain HTML are not covered by them. `assets/design-lint.mjs` scans file text, so it applies to every framework identically and has no plugin dependency.
 
 ## Install
 
@@ -26,9 +24,9 @@ Add to `package.json`:
 { "scripts": { "design-lint": "node scripts/design-lint.mjs" } }
 ```
 
-## Generate the config
+## Config
 
-Write `.design/lint.config.json` from the ratified tokens, not from the defaults in the script. The linter enforces this project's decisions.
+Write `.design/lint.config.json` using the values from `DESIGN.md`, not the defaults in the script.
 
 ```json
 {
@@ -43,50 +41,55 @@ Write `.design/lint.config.json` from the ratified tokens, not from the defaults
 }
 ```
 
-Pull `spacingScale` and `textScale` straight from `DESIGN.md`. If they disagree you have two sources of truth and the linter is enforcing the wrong one.
+`spacingScale` and `textScale` must match `DESIGN.md` exactly. If they differ, the linter enforces a scale the documentation does not describe.
 
 ## Rules
 
-| Rule | Severity | Catches |
+| Rule | Severity | Flags |
 |---|---|---|
 | `arbitrary-value` | error | `p-[13px]`, `w-[327px]` |
 | `raw-hex` | error | `#3b82f6` in markup |
-| `off-scale-spacing` | error | `p-7` when 7 isn't a step |
+| `off-scale-spacing` | error | `p-7` when 7 is not a step |
 | `off-scale-text` | error | `text-7xl` outside the scale |
 | `raw-palette` | warn | `text-neutral-700` instead of a role |
 | `off-scale-radius` | warn | `rounded-[3px]` |
 
-Errors exit non-zero. Warnings don't. Palette usage starts as a warning because it's the longest tail to migrate. Promote it to error once `design-apply` batch 3 is done, and say so when you install.
+Errors exit non-zero. Warnings do not.
+
+Set `raw-palette` to warn during migration and promote it to error after `design-apply` batch 3 completes. Tell the user when you install it that this is staged.
+
+## Baseline
+
+On an existing codebase the first run returns hundreds or thousands of findings.
+
+Record that count as the baseline in `.design/lint.config.json` and configure CI to fail only when the count exceeds it. Do not configure CI to fail on any finding. A build that cannot pass gets bypassed, and a bypassed check reports nothing while appearing to.
+
+Lower the baseline as `design-apply` batches land.
+
+## Exceptions
+
+`// design-lint-disable` on a line skips that line. Require a reason in the comment. An exception without a stated reason cannot be reviewed later.
 
 ## shadcn alignment
 
-If `components.json` exists, align the substrate before you trust the linter.
+Run this when `components.json` exists.
 
-shadcn components are copied into the repo and owned there, so they drift in a way a versioned dependency can't. A raw palette class in a page affects one screen. The same class in `ui/button` affects every button in the product. That makes `ui/` the highest-leverage place to enforce and the easiest to forget.
+shadcn components are copied into the repo rather than installed as a dependency, so they diverge from the registry and from each other over time. A raw palette class in `ui/button` propagates to every button in the product.
 
-Read `references/shadcn-alignment.md` and work its four steps: reconcile `components.json` (especially `cssVariables: true`), audit installed components for raw values and forgotten local edits, replace hand-rolled components that shadow registry ones, then tighten the linter over `ui/`.
+Read `references/shadcn-alignment.md` and follow its four steps: reconcile `components.json`, audit `ui/` for raw values and local edits, replace hand-written components that duplicate registry ones, and raise severity for findings inside `ui/`.
 
-## Escape hatch
+## Optional
 
-`// design-lint-disable` on a line skips it. Real exceptions exist. A marketing hero that genuinely needs a one-off size isn't drift. Require a reason in the comment. A disable with no reason is drift wearing a hat.
+Offer these. Do not install without asking.
 
-## Baseline, don't block
+Pre-commit hook:
 
-On an existing codebase the first run comes back in the hundreds or thousands. Don't wire CI to fail on day one. A permanently red build gets ignored within a week, and then the linter is worse than nothing because people think it's checking something.
-
-Record the current count as a baseline in `.design/lint.config.json` and have CI fail only when the count goes up. Ratchet it down as `design-apply` batches land.
-
-## Optional wiring
-
-Offer these. Don't install without asking.
-
-**Pre-commit**, catches drift before it exists:
 ```bash
 echo 'npm run design-lint --quiet' >> .husky/pre-commit
 ```
 
-**CI**, a step running `npm run design-lint`.
+CI step running `npm run design-lint`.
 
 ## Report
 
-Count by rule, the three worst files, and the baseline you set. Then say plainly what's blocked and what's only observed. The user needs to know which of these will interrupt them tomorrow.
+Finding count by rule, the three files with the most findings, and the baseline value. State which rules currently block and which only warn.

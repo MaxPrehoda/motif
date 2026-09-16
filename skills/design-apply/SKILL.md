@@ -1,11 +1,11 @@
 ---
 name: design-apply
-description: "Migrate a codebase onto ratified design tokens. Replaces arbitrary values, snaps off-scale numbers, swaps raw palette classes for semantic roles. Reviewable batched commits, never one sweeping rewrite. Use as phase 3 of design-system, after design-ratify."
+description: "Migrates a codebase onto ratified design tokens in four batches, ordered by risk: exact matches, sub-threshold snaps, palette-to-role mapping, then everything else. Commits each batch separately. Use as phase 3 of design-system, after design-ratify."
 ---
 
 # Design Apply
 
-Move the codebase onto the tokens. This is where design systems usually die: someone hand-edits 200 files, gets bored at file 40, and the repo ends up with two systems instead of one.
+Replace off-token values in the codebase with tokens. Work in four batches, committing each separately so any visual regression can be bisected.
 
 ## Prerequisite
 
@@ -13,45 +13,45 @@ Move the codebase onto the tokens. This is where design systems usually die: som
 test -f DESIGN.md || echo "MISSING"
 ```
 
-## The rule
+## Rule
 
-> **Never invent a value.**
+When a value has no matching token, stop and record it. Do not choose the closest token, and do not add a new one.
 
-If a value has no token, you've found a gap in the system or a one-off that shouldn't exist. Both need a human. Stop and report. Don't improvise. You improvise faster than a team does, which is what makes this phase dangerous.
+Collect these as you go and present them at the end of the phase as a list of questions. Each is either a gap in the scale or a value that should not exist, and both need the user to decide.
 
-Collect unmapped values as you go and hand them over at the end as questions, not as edits you already made.
+## Batch 1: exact matches
 
-## Order
+Values already equal to a token, written in long form. `p-[16px]` to `p-4`. No visual change. Apply across the repo.
 
-Safest first, one commit per batch. If something breaks visually the user bisects in seconds instead of reading a 200-file diff.
+## Batch 2: snaps under threshold
 
-### Batch 1: exact matches
-Values that already equal a token, written the long way. `p-[16px]` becomes `p-4`. Pure notation, zero visual change. Safe to do wholesale.
+Off-scale values within half a spacing step of a token. `pb-[15px]` to `pb-4`.
 
-### Batch 2: snaps under threshold
-Off-scale values within about 2px of a token. `pb-[15px]` becomes `pb-4`. Set the threshold from the spacing base, half a step, never more.
+Before applying, state the count and the largest single change. For example: "47 snaps, largest is 15px to 16px."
 
-State the count and the largest delta before applying. "47 snaps, biggest is 15px to 16px."
+## Batch 3: palette to semantic role
 
-### Batch 3: palette to semantic
-`text-neutral-700` becomes `text-muted-foreground`. This needs you to read intent, not match strings. The same grey is body text in one place and a disabled control in another, and they must not collapse into one token.
+`text-neutral-700` to `text-muted-foreground`.
 
-Work per component, not per class. Read the component, decide its roles, edit it whole.
+This requires reading intent, not matching strings. The same grey can be body text in one component and a disabled state in another, and those must map to different roles.
 
-### Batch 4: everything else
-No clean mapping. Don't batch these. Each one gets a look and a note.
+Work one component at a time: read it, decide the role for each usage, edit the whole file.
+
+## Batch 4: remaining values
+
+Values with no clean mapping. Handle individually. Do not batch.
 
 ## Per batch
 
 ```bash
 git checkout -b design-apply-batch-N
 # edits
-npm run build          # or whatever the project's check command is
+npm run build          # or the project's check command
 git diff --stat
 ```
 
-Report what changed, in what direction, and the largest single delta. Let the user look before you start the next batch. Don't chain batches without a checkpoint.
+Report what changed, the direction of each change, and the largest single difference. Wait for the user to review before starting the next batch.
 
-## Finishing
+## Finish
 
-Run `design-lint` and report what's left by category. Anything remaining is either a deliberate exception or a gap in the system. Say which, for each. A clean lint on a diff nobody reviewed isn't success.
+Run `design-lint` and report remaining findings by rule. For each one, state whether it is a deliberate exception or a gap in the scale.

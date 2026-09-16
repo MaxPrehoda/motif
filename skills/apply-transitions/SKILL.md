@@ -1,13 +1,11 @@
 ---
 name: apply-transitions
-description: "Apply motion tokens across an entire app. Finds every state change, hover, conditional render, and route transition that happens instantly and gives it the right duration and easing from the design system. Use when an app feels abrupt, or after establishing motion tokens."
+description: "Finds state changes, conditional renders and hover states that happen with no transition, classifies each by interaction type, and applies the matching duration and easing token. Use as a phase 5 pass of design-system, or when an app changes state abruptly."
 ---
 
 # Apply Transitions
 
-Give an app a coherent motion layer using only the ratified motion tokens.
-
-Most UIs have motion on the things that are easy to animate, like buttons, because `hover:` is one word. They have nothing on the things that need it: the modal that pops into existence, the list that jumps when an item is removed, the loading state that snaps.
+Find UI changes that happen instantly and apply the motion tokens to them.
 
 ## Prerequisite
 
@@ -15,58 +13,56 @@ Most UIs have motion on the things that are easy to animate, like buttons, becau
 grep -A6 '^## Motion' DESIGN.md || echo "MISSING"
 ```
 
-Motion tokens have to exist first. Applying durations without them produces exactly the `duration-150` / `duration-200` / `duration-300` on sibling buttons problem this pass is meant to fix.
+Stop if the motion section is missing. Applying durations without tokens produces the inconsistency this pass exists to remove.
 
-## Step 1: Find the gaps
+## Step 1: Find changes with no transition
 
-Instant changes are invisible in a diff. You're searching for the absence of something. Three classes, by framework.
+You are searching for the absence of a property, so grep for the construct and then check each result.
 
-**Conditional renders with no enter or exit.**
+Conditional renders:
 
 ```bash
 # Svelte
 grep -rn '{#if' src --include="*.svelte" | head -40
-# React / JSX
+# React and JSX
 grep -rn -E '\{\s*\w+\s*&&\s*<|\{\s*\w+\s*\?\s*<' src --include="*.tsx" --include="*.jsx" | head -40
 # Vue
 grep -rn 'v-if=' src --include="*.vue" | head -40
 ```
 
-For each: does it have `transition:` / `<AnimatePresence>` / `<Transition>`? If not it's a gap. Modals, dropdowns, toasts, tooltips, accordions, tab panels, error messages, and loading states are the usual ones.
+For each, check whether the element has `transition:`, `<AnimatePresence>` or `<Transition>`. Record the ones that do not. Modals, dropdowns, toasts, tooltips, accordions, tab panels, error messages and loading states are the common cases.
 
-**Interactive elements with no transition.**
+Interactive elements:
 
 ```bash
 grep -rn -E 'hover:|focus:|active:|aria-expanded|data-state' src --include="*.svelte" --include="*.tsx" | grep -v 'transition' | head -40
 ```
 
-A `hover:bg-*` with no `transition-colors` snaps. Most common instance by far.
+A `hover:bg-*` with no `transition-colors` changes instantly.
 
-**Dynamic inline styles.**
+Dynamic inline styles:
 
 ```bash
 grep -rn -E 'style=.*(height|width|opacity|transform).*\$?\{' src --include="*.svelte" --include="*.tsx" | head -20
 ```
 
-`style="height: {open ? 200 : 0}px"` with no transition is a jump.
-
 ## Step 2: Classify, then assign
 
-Never pick a duration per element. Classify the interaction and let the class pick the token.
+Assign a duration by interaction class, not per element.
 
 | Class | Token | Applies to |
 |---|---|---|
-| **Micro** | `duration-150` | hover, focus, press, checkbox, toggle |
-| **Standard** | `duration-250` | dropdown, tooltip, popover, accordion, tab |
-| **Large** | `duration-400` | modal, drawer, route, full-page |
+| Micro | `duration-150` | hover, focus, press, checkbox, toggle |
+| Standard | `duration-250` | dropdown, tooltip, popover, accordion, tab |
+| Large | `duration-400` | modal, drawer, route change, full-page |
 
-Easing comes from `DESIGN.md`, usually `ease-out` in and `ease-in` out. Things arrive decelerating and leave accelerating. Reversed, it reads wrong even to people who can't say why.
+Take the easing pair from `DESIGN.md`. Enter uses the ease-out curve, exit uses ease-in.
 
-## Step 3: Non-negotiables
+## Step 3: Constraints
 
-**Animate `transform` and `opacity` only.** Animating `width`, `height`, `top`, or `margin` triggers layout every frame. If you genuinely need a height transition, use grid-rows or scale instead of animating height directly.
+**Animate `transform` and `opacity` only.** Animating `width`, `height`, `top` or `margin` triggers layout on every frame. For a height transition, animate a grid-template-rows value or a scale transform instead.
 
-**Respect reduced motion.** Every addition, no exceptions:
+**Add reduced-motion handling with every change:**
 
 ```css
 @media (prefers-reduced-motion: reduce) {
@@ -77,10 +73,12 @@ Easing comes from `DESIGN.md`, usually `ease-out` in and `ease-in` out. Things a
 }
 ```
 
-Keep opacity fades, drop movement. Fading rarely triggers vestibular problems. Translation and scale do.
+Keep opacity transitions and remove movement. Translation and scale are the vestibular triggers; fades are not.
 
-**Don't animate on mount without a reason.** Entrance animations on every element on page load is the signature move of AI slop motion. Animate what changes, not what exists.
+**Do not add entrance animations to elements that are present on load.** Animate elements when they appear or change, not when the page renders.
 
-## Step 4: Apply and report
+## Step 4: Report
 
-Per batch: file, gap found, class assigned, token. Report the count by class. Then name what you deliberately left alone and why. An instant change is sometimes correct, and a pass that animates everything is as wrong as one that animates nothing.
+Per file: the construct found, the class assigned, the token applied. Then the count by class.
+
+List anything you left without a transition and why. Some state changes should be instant.

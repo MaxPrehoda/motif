@@ -1,13 +1,11 @@
 ---
 name: design-ratify
-description: "Turn settled design decisions into executable artifacts: theme tokens, a DESIGN.md that agents and humans both read, and decision records for the few choices that are expensive to reverse. Use as phase 2 of design-system, after design-grill."
+description: "Writes settled design decisions into theme tokens, a DESIGN.md reference, and decision records for choices that are expensive to reverse. Use as phase 2 of design-system, after design-grill."
 ---
 
 # Design Ratify
 
-Turn decisions into files that make them real.
-
-The thing that separates this from writing a style guide: the docs and the enforcement are the same file. A `CONTEXT.md` describing a domain model is prose somebody might read. `@theme` tokens are prose the compiler reads. Write the tokens and the doc stops being aspirational.
+Write the settled decisions into three artifacts: tokens, `DESIGN.md`, and decision records.
 
 ## Prerequisite
 
@@ -15,15 +13,13 @@ The thing that separates this from writing a style guide: the docs and the enfor
 test -f .design/decisions.json || echo "MISSING"
 ```
 
-Missing, or any node unsettled: stop. Ratifying a partial tree bakes in a guess.
+Stop if it is missing or if any node in it is unsettled.
 
-## What you write
+## 1. Tokens
 
-### 1. Tokens
+Branch on the Tailwind version recorded in `drift.json`.
 
-Branch on the Tailwind version in `drift.json`.
-
-**Tailwind v4.** `@theme` in the main CSS file:
+**Tailwind v4**, `@theme` in the main CSS file:
 
 ```css
 @theme {
@@ -38,16 +34,17 @@ Branch on the Tailwind version in `drift.json`.
 }
 ```
 
-**Tailwind v3.** `theme.extend` in `tailwind.config.js`. Keep the existing `hsl(var(--x))` convention if shadcn is there. Don't migrate a working v3 project to v4 as part of this. Separate decision, its own risk, nobody asked.
+**Tailwind v3**, `theme.extend` in `tailwind.config.js`. Keep the existing `hsl(var(--x))` format when `components.json` exists. Do not upgrade the project from v3 to v4 in this phase.
 
 Rules:
-- **Semantic names.** `--color-primary`, never `--color-blue-600`. Literal names are how you end up with a token called `blue` that's green.
-- **Derive, don't enumerate.** `--radius-sm: calc(var(--radius-lg) - 2px)`. One edit retunes the set.
-- **Only what was decided.** Don't pad the token set. Every unused token is drift with permission.
 
-### 2. `DESIGN.md`
+- Name tokens by role, not by value. Use `--color-primary`, not `--color-blue-600`. A value-named token becomes wrong the first time the value changes.
+- Derive related values rather than listing them. `--radius-sm: calc(var(--radius-lg) - 2px)`.
+- Write only tokens for decisions in `decisions.json`. Do not add tokens nobody chose.
 
-Repo root. This gets loaded into context on every future design task, so write it for an agent skimming fast. Tables over paragraphs. Rule first, reason second. No throat-clearing.
+## 2. DESIGN.md
+
+Write to the repo root. This file is loaded into agent context on future design tasks, so use tables, state each rule before its reason, and omit preamble.
 
 ```markdown
 # Design System
@@ -60,49 +57,49 @@ Character: dense/productive. Decided <date>.
 | `1` | 4px | icon gaps, tight inline |
 | `2` | 8px | control padding |
 ...
-**Never** use arbitrary spacing. If nothing fits, the scale is wrong. Fix the scale.
+**Never** use arbitrary spacing values. If no token fits, the scale is wrong. Change the scale.
 
-## Type, 1.250, 6 steps
+## Type, 1.250 ratio, 6 steps
 | Token | Size | Leading | Use |
 ...
-Leading is inverse to size. Display tight, body loose.
+Line-height is inverse to size.
 
 ## Color, semantic roles only
 | Role | Means |
 |---|---|
-| `primary` | the one action that advances the task |
-| `muted-foreground` | present but not the point |
+| `primary` | the action that advances the primary task |
+| `muted-foreground` | secondary information |
 ...
-**Never** use raw palette classes like `text-neutral-700`. Always the role.
+**Never** use raw palette classes such as `text-neutral-700`. Use the role.
 
 ## Motion
-Enter `ease-out`, exit `ease-in`. 150 micro, 250 standard, 400 large.
+`ease-out` entering, `ease-in` exiting. 150ms micro, 250ms standard, 400ms large.
 
 ## Enforcement
-`npm run design-lint`. CI-blocking.
+`npm run design-lint`. Blocks CI when the count rises above baseline.
 ```
 
-Put a **Never** line on each axis. Agents follow explicit prohibitions. They don't reliably infer them from examples.
+Include a **Never** line for each axis. State prohibitions explicitly rather than implying them through examples.
 
-### 3. Decision records
+## 3. Decision records
 
-`.design/records/NNNN-slug.md`. Write one only when a decision is costly to undo, or the user went against your recommendation:
+Write `.design/records/NNNN-slug.md` only for decisions in these categories, or where `decisions.json` shows the user chose against the recommendation:
 
-- token architecture (semantic vs. literal)
+- token naming scheme
 - spacing base unit
 - type ratio
 - color space
 - dark mode strategy
-- component substrate (shadcn or not)
+- component substrate
 
-That's close to the whole list. Changing a shade of blue is free and needs no record. Most design decisions are reversible, and ceremony around reversible decisions teaches people to ignore the ceremony.
+Format: context, decision, consequences, what would prompt revisiting it. Under 30 lines.
 
-Format: context, decision, consequences, what would make us revisit. Under 30 lines.
+Do not write records for individual values. Changing a color is a one-line edit.
 
-## Verify before finishing
+## 4. Verify
 
 ```bash
 npx tailwindcss -i <input.css> -o /tmp/t.css 2>&1 | tail -5
 ```
 
-Then confirm every node in `decisions.json` shows up in the output, and report anything that doesn't. A decision that didn't make it into a token didn't happen.
+Confirm the tokens compile. Then check that every node in `decisions.json` appears in the token output and report any that do not.

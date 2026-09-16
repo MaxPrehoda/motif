@@ -1,13 +1,11 @@
 ---
 name: beautify
-description: "A restrained polish pass over an existing UI. Snaps spacing and type to the ratified scale, fixes text that overflows or sits badly in its container, corrects optical alignment and measure. Makes things right without redesigning them. Use when the user says the UI looks \"off\", \"amateur\", or \"not quite right\" but doesn't want it redesigned."
+description: "Corrects spacing, type, measure, alignment, overflow and focus states in an existing UI without changing its design. Snaps off-scale values to the ratified scale, constrains body text to a readable line length, fixes optical alignment and clipped text. Use when the user wants an existing UI corrected rather than redesigned."
 ---
 
 # Beautify
 
-The narrowest pass in the suite, on purpose.
-
-The constraint is the feature. Every "make my UI better" agent redesigns things: new gradients, new shadows, a different button. The user then loses an afternoon reverting it. This pass changes nothing they'd recognize as a design decision. It fixes things that are just wrong.
+Correct mechanical errors in an existing UI. Do not redesign it.
 
 ## Prerequisite
 
@@ -15,57 +13,60 @@ The constraint is the feature. Every "make my UI better" agent redesigns things:
 test -f DESIGN.md || echo "MISSING, run design-system first"
 ```
 
-Without a ratified scale you have no definition of "right", and the pass becomes taste. That's the exact failure this skill exists to avoid. Stop and say so.
+Stop if it is missing. This pass snaps values to a ratified scale. Without one there is no definition of correct, and every change becomes a judgment call.
 
 ## In scope
 
-| Fix | What it means |
+| Fix | Rule |
 |---|---|
-| **Snap to scale** | Off-scale spacing to the nearest token, when the delta is imperceptible |
-| **Optical alignment** | Icons next to text centred on cap-height, not the bounding box |
-| **Measure** | Body text held to 45-75ch. Long lines are the most common cause of "looks amateur" |
-| **Overflow** | Text that clips, wraps badly, or escapes its container at any breakpoint |
-| **Leading** | Line-height inverse to size per `DESIGN.md`. Display tight, body loose |
-| **Vertical rhythm** | Sibling sections with mismatched gaps, collapsed to one value |
-| **Truncation** | Unbounded user content that will break the layout on a long string |
-| **Touch targets** | Interactive elements under 24x24px |
-| **Focus states** | Missing `focus-visible`. Accessibility, and cheap |
+| Off-scale spacing | Replace with the nearest token when the difference is under half a spacing step |
+| Off-scale type | Replace with the nearest step in the type scale |
+| Measure | Constrain body text to 45-75 characters per line |
+| Optical alignment | Center icons on cap-height, not the bounding box. Usually a 1px offset |
+| Overflow | Fix text that clips, wraps badly, or escapes its container at any breakpoint |
+| Leading | Apply the line-height rule from `DESIGN.md`. Tight for display sizes, loose for body |
+| Vertical rhythm | Give sibling sections the same gap value |
+| Truncation | Bound user-supplied content that can break layout on a long string |
+| Touch targets | Enlarge interactive elements under 24x24px |
+| Focus states | Add `focus-visible` where missing |
 
-## Out of scope, don't touch
+## Out of scope
 
-Colors, beyond swapping raw palette for a role. Layout structure. Component choice. Adding shadows, gradients, or decoration. Fonts. Imagery. Copy.
+Do not change: colors (except swapping a raw palette class for its semantic role), layout structure, component choice, shadows, gradients, borders, fonts, imagery, or copy.
 
-The test: if a change would show up in a screenshot comparison as a design difference rather than a correction, it doesn't belong here. Apply that honestly.
+Do not add decoration of any kind.
 
-## Method
+## Test for whether a change belongs here
 
-### 1. Find the offenders
+Compare the before and after. If the difference reads as a different design decision, it does not belong in this pass. If it reads as the same design with an error corrected, it does.
+
+When you cannot tell, leave it and list it under "noticed, not changed".
+
+## Steps
+
+### 1. Find off-scale values
 
 ```bash
 npm run design-lint --json > /tmp/drift.json
 ```
 
-Then read the highest-density files. Static analysis finds off-scale values. Only reading finds bad measure and optical misalignment.
+Then read the files with the highest counts. Static analysis finds off-scale numbers. Measure and optical alignment require reading the markup.
 
-### 2. Check at width
+### 2. Check at three widths
 
-Text problems are invisible at desktop width. If there's a dev server, check 375px, 768px, and 1440px. Most overflow and measure failures only show at the extremes.
+Check 375px, 768px and 1440px if a dev server is available. Overflow and measure problems appear at the extremes and are invisible at desktop width.
 
-### 3. Apply per component
+### 3. Edit per component
 
-Read the component, fix everything in it, move on. Don't sweep one class across the repo. The same value means different things in different places, and a global replace is how a "safe" pass breaks a layout.
+Read a component, fix everything in it, move to the next. Do not find-and-replace a class across the repo. The same value can mean different things in different components.
 
-### 4. Report as a table
+### 4. Report
 
 ```
 src/routes/about/+page.svelte
   measure      prose at 118ch -> max-w-prose (65ch)
   snap         pb-[15px] -> pb-4
-  optical      icon +1px baseline nudge beside label
+  optical      icon +1px baseline offset beside label
 ```
 
-State the count and confirm: no color, layout, or component changes. The user should be able to trust that sentence without reading the diff.
-
-## Judgement
-
-If you're unsure whether something is a correction or a redesign, it's a redesign. Leave it. List it at the end under "noticed but not changed" so the user can decide.
+State the total count. State explicitly that no color, layout or component changes were made.

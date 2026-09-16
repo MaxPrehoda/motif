@@ -1,71 +1,67 @@
 ---
 name: empty-states
-description: "Find functionality that has no empty state and build one. Locates lists, tables, search results, dashboards, and feeds that render nothing or a bare string when they have no data, then adds a proper zero state with explanation and a next action. Use when an app feels unfinished or broken when new."
+description: "Finds lists, tables, search results and dashboards that render nothing or a bare string when they have no data, classifies each by cause, and builds a zero state with an explanation and one action. Use as a phase 5 pass of design-system, or when an app looks broken before it has data."
 ---
 
 # Empty States
 
-The most-seen, least-designed screen in any product. Every user hits the empty state first, before the feature has ever worked for them, and it's almost always blank or the words "No results".
+Find rendering paths that produce nothing when data is absent, and build a zero state for each.
 
-A blank screen is indistinguishable from a bug. The user can't tell whether the feature is empty or broken. That's the whole problem.
-
-## Step 1: Find the gaps
-
-Look for rendering paths that produce nothing when data is absent.
+## Step 1: Find them
 
 ```bash
-# .map over data with no length check nearby
+# iteration over data
 grep -rn -E '\{#each|\.map\(|v-for=' src --include="*.svelte" --include="*.tsx" --include="*.vue" | head -40
 
-# bare-string handling, these are gaps not empty states
+# bare-string handling
 grep -rn -iE '"(no |empty|nothing |none )' src --include="*.svelte" --include="*.tsx" | head -30
 
-# length checks that render null or a fragment
+# length checks
 grep -rn -E '\.length\s*===?\s*0|\.length\s*<\s*1|!\w+\.length' src --include="*.svelte" --include="*.tsx" | head -30
 ```
 
-Three findings, worst first:
+Sort findings into three severities:
 
-1. **No handling at all.** Renders a blank container. Reads as broken.
-2. **Bare string.** `<p>No items</p>`. That's a label, not an empty state.
-3. **Real empty state.** Icon, explanation, action. Leave these alone.
+1. **No handling.** Renders an empty container. The user cannot distinguish this from a failed request.
+2. **Bare string.** `<p>No items</p>`. Renders text but no explanation or action.
+3. **Complete.** Has a visual, an explanation and an action. Leave these.
 
-Prioritize by how likely a user is to hit it. The primary object's list, the one every new account sees on day one, matters more than a filtered admin view.
+Order the work by how many users reach each one. The list a new account sees on first login comes before a filtered admin view.
 
-## Step 2: Classify, because the type decides the content
+## Step 2: Classify by cause
 
-Four kinds. Writing the wrong one is worse than writing nothing.
+The cause determines the content. Using the wrong type produces copy that contradicts the user's situation.
 
-| Type | Cause | Needs |
+| Type | Cause | Content |
 |---|---|---|
-| **First use** | New user, nothing created yet | Explain the value, primary action |
-| **Cleared** | User finished or deleted everything | Acknowledge it. Don't sell the feature again |
-| **No results** | Filter or search matched nothing | Echo the query, offer a way to clear it |
-| **Error / permission** | Failed or not allowed | Say what happened, how to recover |
+| First use | New account, nothing created | What the feature does, plus the action that creates the first item |
+| Cleared | User completed or deleted everything | Acknowledge completion. No feature explanation |
+| No results | Filter or search matched nothing | Echo the query, offer to clear it |
+| Error or permission | Request failed, or access denied | What happened, and the recovery step |
 
-The common mistake is showing a first-use state to someone who just cleared their inbox. "Create your first task!" after finishing everything reads like a system that isn't paying attention.
+A first-use state shown after a user clears their list reads as the product not tracking what they did.
 
-## Step 3: Build it
+## Step 3: Build
 
-Four elements, in this order. Nothing else.
+Four elements, in this order:
 
-1. **Visual.** Icon at 32-48px in `text-muted-foreground`. Use the project's icon library. Don't commission an illustration for this pass.
-2. **Headline.** What's here, not that it's empty. "No projects yet" beats "Empty".
-3. **One line of explanation.** What this does and why it's worth using. Skip it for cleared states.
-4. **One primary action.** The exact thing that resolves the emptiness. For no-results that's "Clear filters", not "Create".
+1. **Visual.** An icon at 32-48px in `text-muted-foreground`, from the project's icon library.
+2. **Headline.** What is absent, stated positively. "No projects yet" rather than "Empty".
+3. **Explanation.** One line on what this feature does. Omit for cleared states.
+4. **Action.** One button, performing the step that resolves the state. For no-results that is clearing the filter, not creating a record.
 
 Constraints:
 
-- **Build from existing components.** Same Button, same type tokens, same spacing scale. An empty state that introduces new patterns has made the system worse.
-- **Vertically centred, capped around `max-w-sm`.** Centred text at full width is unreadable.
-- **One action.** Two competing buttons means neither gets pressed.
-- **Never blame the user.** "No results for 'xyz'", not "You didn't find anything".
-- **Don't confuse empty with loading.** Skeleton during fetch. Empty state only once data has come back and is actually empty. "No projects yet" while a request is in flight is a lie the user will act on.
+- Use existing components. Same button, same type tokens, same spacing scale.
+- Center vertically, constrain text to `max-w-sm`.
+- One action only.
+- Phrase failures as facts, not user error. "No results for 'xyz'", not "You didn't find anything".
+- Render a skeleton during loading and the empty state only after data returns empty. Rendering the empty state while a request is in flight tells the user something false.
 
-## Step 4: Extract if it repeats
+## Step 4: Extract when repeated
 
-Three or more empty states means a shared `<EmptyState>` component with icon, title, description, and action as props. Below three, inline is fine. Extracting early costs more than it saves.
+At three or more instances, extract a shared `<EmptyState>` component taking icon, title, description and action as props. Below three, keep them inline.
 
 ## Report
 
-Per state: file, type, what was there before. Confirm which components you used and confirm none of them are new. Flag anything that needs real copy from the user. You can write a competent placeholder, but the product's voice is theirs.
+Per state: file, type, and what rendered before. List the components used and confirm none are new. Flag any state where the copy needs the product's voice rather than a placeholder.
