@@ -1,6 +1,6 @@
 ---
 name: design-system
-description: Plan, implement, and enforce a design system for this project. Runs the full pipeline: measure existing drift, grill the user through the decisions with rendered previews, ratify tokens, apply them across the codebase, and install enforcement. Use when the user wants a design system, says their UI is inconsistent, asks to "clean up the design", or wants spacing/type/color standardized.
+description: "Plan, implement, and enforce a design system for this project. Runs the full pipeline: measure existing drift, grill the user through the decisions with rendered previews, ratify tokens, apply them across the codebase, and install enforcement. Use when the user wants a design system, says their UI is inconsistent, asks to \"clean up the design\", or wants spacing/type/color standardized."
 ---
 
 # Design System

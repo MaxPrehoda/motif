@@ -1,6 +1,6 @@
 ---
 name: design-apply
-description: Migrate a codebase onto ratified design tokens. Replaces arbitrary values, snaps off-scale numbers, swaps raw palette classes for semantic roles. Reviewable batched commits, never one sweeping rewrite. Use as phase 3 of design-system, after design-ratify.
+description: "Migrate a codebase onto ratified design tokens. Replaces arbitrary values, snaps off-scale numbers, swaps raw palette classes for semantic roles. Reviewable batched commits, never one sweeping rewrite. Use as phase 3 of design-system, after design-ratify."
 ---
 
 # Design Apply

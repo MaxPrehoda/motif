@@ -1,6 +1,6 @@
 ---
 name: choose-icons
-description: Pick an icon library that actually covers an app's needs, then apply it consistently app-wide. Inventories every icon the product requires, checks real coverage against candidate libraries before committing, and replaces mixed or ad-hoc icons with one set. Use when an app has inconsistent icons, inline SVGs, or no icon system.
+description: "Pick an icon library that actually covers an app's needs, then apply it consistently app-wide. Inventories every icon the product requires, checks real coverage against candidate libraries before committing, and replaces mixed or ad-hoc icons with one set. Use when an app has inconsistent icons, inline SVGs, or no icon system."
 ---
 
 # Choose Icons

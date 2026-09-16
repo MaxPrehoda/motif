@@ -1,6 +1,6 @@
 ---
 name: apply-transitions
-description: Apply motion tokens across an entire app. Finds every state change, hover, conditional render, and route transition that happens instantly and gives it the right duration and easing from the design system. Use when an app feels abrupt, or after establishing motion tokens.
+description: "Apply motion tokens across an entire app. Finds every state change, hover, conditional render, and route transition that happens instantly and gives it the right duration and easing from the design system. Use when an app feels abrupt, or after establishing motion tokens."
 ---
 
 # Apply Transitions

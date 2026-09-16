@@ -1,6 +1,6 @@
 ---
 name: design-enforce
-description: Install drift enforcement for a ratified design system. A framework-agnostic lint script with config derived from the tokens, an npm script, shadcn substrate alignment, and optional CI and pre-commit wiring. Use as phase 4 of design-system, after design-apply.
+description: "Install drift enforcement for a ratified design system. A framework-agnostic lint script with config derived from the tokens, an npm script, shadcn substrate alignment, and optional CI and pre-commit wiring. Use as phase 4 of design-system, after design-apply."
 ---
 
 # Design Enforce

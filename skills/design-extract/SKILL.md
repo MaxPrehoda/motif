@@ -1,6 +1,6 @@
 ---
 name: design-extract
-description: Measure the design system a codebase already has by accident. Inventories every spacing, type, color, radius, shadow, and motion value in the source, finds collisions and near-duplicates, and writes a drift report. Use as phase 0 of design-system, or standalone when the user asks how inconsistent their UI is.
+description: "Measure the design system a codebase already has by accident. Inventories every spacing, type, color, radius, shadow, and motion value in the source, finds collisions and near-duplicates, and writes a drift report. Use as phase 0 of design-system, or standalone when the user asks how inconsistent their UI is."
 ---
 
 # Design Extract

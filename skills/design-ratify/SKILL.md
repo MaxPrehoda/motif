@@ -1,6 +1,6 @@
 ---
 name: design-ratify
-description: Turn settled design decisions into executable artifacts: theme tokens, a DESIGN.md that agents and humans both read, and decision records for the few choices that are expensive to reverse. Use as phase 2 of design-system, after design-grill.
+description: "Turn settled design decisions into executable artifacts: theme tokens, a DESIGN.md that agents and humans both read, and decision records for the few choices that are expensive to reverse. Use as phase 2 of design-system, after design-grill."
 ---
 
 # Design Ratify

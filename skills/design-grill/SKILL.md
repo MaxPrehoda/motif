@@ -1,6 +1,6 @@
 ---
 name: design-grill
-description: A relentless interview that settles every design system decision, one dependency-ordered round at a time, with a rendered HTML preview for each round so the user chooses by looking rather than guessing. Use as phase 1 of design-system, after design-extract.
+description: "A relentless interview that settles every design system decision, one dependency-ordered round at a time, with a rendered HTML preview for each round so the user chooses by looking rather than guessing. Use as phase 1 of design-system, after design-extract."
 ---
 
 # Design Grill

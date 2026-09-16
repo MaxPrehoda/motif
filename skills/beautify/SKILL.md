@@ -1,6 +1,6 @@
 ---
 name: beautify
-description: A restrained polish pass over an existing UI. Snaps spacing and type to the ratified scale, fixes text that overflows or sits badly in its container, corrects optical alignment and measure. Makes things right without redesigning them. Use when the user says the UI looks "off", "amateur", or "not quite right" but doesn't want it redesigned.
+description: "A restrained polish pass over an existing UI. Snaps spacing and type to the ratified scale, fixes text that overflows or sits badly in its container, corrects optical alignment and measure. Makes things right without redesigning them. Use when the user says the UI looks \"off\", \"amateur\", or \"not quite right\" but doesn't want it redesigned."
 ---
 
 # Beautify

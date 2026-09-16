@@ -1,6 +1,6 @@
 ---
 name: empty-states
-description: Find functionality that has no empty state and build one. Locates lists, tables, search results, dashboards, and feeds that render nothing or a bare string when they have no data, then adds a proper zero state with explanation and a next action. Use when an app feels unfinished or broken when new.
+description: "Find functionality that has no empty state and build one. Locates lists, tables, search results, dashboards, and feeds that render nothing or a bare string when they have no data, then adds a proper zero state with explanation and a next action. Use when an app feels unfinished or broken when new."
 ---
 
 # Empty States
