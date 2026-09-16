@@ -1,0 +1,19 @@
+{
+  "name": "plumb",
+  "owner": { "name": "MaxPrehoda" },
+  "metadata": {
+    "description": "Design system skills: measure drift, settle the decisions, write tokens, migrate, enforce.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "plumb",
+      "source": "./",
+      "description": "Ten skills that plan, build and enforce a design system, then keep your agent inside it.",
+      "version": "1.0.0",
+      "author": { "name": "MaxPrehoda" },
+      "homepage": "https://aicssanimations.com/skills",
+      "license": "MIT"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+<!doctype html>
+<!-- Frame for a rendered grill round. Fill: TITLE, ROUND_N, OPTIONS.
+     Keep it single-file. Substitute the project's real font stack and palette. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Round ROUND_N: TITLE</title>
+<style>
+  :root{
+    --bg:#fafafa; --fg:#0a0a0a; --muted:#71717a; --line:#e4e4e7;
+    --card:#fff; --pick:#2563eb; --pick-bg:#eff6ff;
+    /* SUBSTITUTE the project's real font stack here */
+    --font:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  :root:not([data-theme=light]) @media (prefers-color-scheme:dark){}
+  @media (prefers-color-scheme:dark){ :root:not([data-theme=light]){
+    --bg:#09090b; --fg:#fafafa; --muted:#a1a1aa; --line:#27272a;
+    --card:#131316; --pick:#60a5fa; --pick-bg:#172554;
+  }}
+  :root[data-theme=dark]{ --bg:#09090b; --fg:#fafafa; --muted:#a1a1aa;
+    --line:#27272a; --card:#131316; --pick:#60a5fa; --pick-bg:#172554; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);
+       padding:48px 16px 96px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1100px;margin:0 auto}
+  .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+  h1{font-size:clamp(24px,4vw,34px);margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0 0 40px;max-width:62ch}
+  .grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .opt{background:var(--card);border:1px solid var(--line);border-radius:12px;
+       padding:24px;position:relative;overflow:hidden}
+  .opt[data-pick]{border-color:var(--pick);box-shadow:0 0 0 3px var(--pick-bg)}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;
+       letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+  .opt[data-pick] .tag{color:var(--pick)}
+  .why{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);
+       font-size:13px;color:var(--muted)}
+  .opt[data-pick] .why{color:var(--pick)}
+  /* specimen area, replace per round */
+  .specimen{display:flex;flex-direction:column;gap:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Round ROUND_N</p>
+  <h1>TITLE</h1>
+  <p class="sub">SUBTITLE. State what is being decided and what it unblocks.</p>
+  <div class="grid">
+    <!-- OPTIONS: one .opt per choice; add data-pick to the recommendation -->
+  </div>
+</div>
+</body>
+</html>
