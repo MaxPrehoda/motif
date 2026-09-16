@@ -1,5 +1,8 @@
 # Motif
 
+[![skills.sh](https://skills.sh/b/maxprehoda/motif)](https://skills.sh/maxprehoda/motif)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Ten agent skills that plan, build and enforce a design system, then keep your agent inside it.
 
 A motif is the element that recurs until a work feels like one work. That's what a spacing
