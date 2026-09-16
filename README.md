@@ -1,16 +1,19 @@
-# Plumb
+# Motif
 
 Ten agent skills that plan, build and enforce a design system, then keep your agent inside it.
 
+A motif is the element that recurs until a work feels like one work. That's what a spacing
+scale is: the same six numbers, everywhere, on purpose.
+
 ```bash
-npx skills add MaxPrehoda/plumb
+npx skills add MaxPrehoda/motif
 ```
 
 Or as a Claude Code plugin:
 
 ```
-/plugin marketplace add MaxPrehoda/plumb
-/plugin install plumb
+/plugin marketplace add MaxPrehoda/motif
+/plugin install motif
 ```
 
 Works in Claude Code, Cursor, Codex, Copilot, Gemini CLI, and anything else that reads `SKILL.md`.

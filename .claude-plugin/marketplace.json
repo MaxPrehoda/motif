@@ -1,5 +1,5 @@
 {
-  "name": "plumb",
+  "name": "motif",
   "owner": { "name": "MaxPrehoda" },
   "metadata": {
     "description": "Design system skills: measure drift, settle the decisions, write tokens, migrate, enforce.",
@@ -7,7 +7,7 @@
   },
   "plugins": [
     {
-      "name": "plumb",
+      "name": "motif",
       "source": "./",
       "description": "Ten skills that plan, build and enforce a design system, then keep your agent inside it.",
       "version": "1.0.0",
